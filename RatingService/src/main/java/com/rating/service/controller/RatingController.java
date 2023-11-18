@@ -49,5 +49,10 @@ public class RatingController {
         return ResponseEntity.status(HttpStatus.OK).body(this.ratingService.deleteRating(ratingId));
     }
 
+    @DeleteMapping("/user/clear-rating/{userId}")
+    public ResponseEntity<ApiResponse> deleteRatingsForUser(@PathVariable("userId") String userId){
+        return ResponseEntity.ok(this.ratingService.clearAllRating(userId));
+    }
+
 
 }

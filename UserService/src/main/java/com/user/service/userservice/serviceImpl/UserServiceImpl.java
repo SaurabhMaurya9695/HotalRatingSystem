@@ -2,7 +2,6 @@ package com.user.service.userservice.serviceImpl;
 
 import com.user.service.userservice.dto.UserDto;
 import com.user.service.userservice.entities.User;
-import com.user.service.userservice.exceptions.GlobalExceptionHandler;
 import com.user.service.userservice.exceptions.ResourceNotFoundException;
 import com.user.service.userservice.repository.UserRepository;
 import com.user.service.userservice.response.ApiResponse;
@@ -11,8 +10,12 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,6 +28,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ModelMapper modelMapper ;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${rating.url}")
+    private String RATING_URL;
 
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -53,6 +62,9 @@ public class UserServiceImpl implements UserService {
         //now we have to send all users in the form of DTO
 
         List<UserDto> allUsersDto = allUsers.stream().map(item -> {
+            ArrayList ratings = restTemplate.getForObject(RATING_URL + "/rating/user/" + item.getUserId(), ArrayList.class);
+            logger.info("{}", ratings);
+            item.setRatingList(ratings);
             return modelMapper.map(item, UserDto.class);
         }).collect(Collectors.toList());
 
@@ -67,12 +79,21 @@ public class UserServiceImpl implements UserService {
         // here we are getting user but we don't have any ratings of user
         // so we have to get ratings also ..for that we use feign client or restTemplate
         // http://localhost:2025/rating/user/{userId}
+        ArrayList ratings = restTemplate.getForObject(RATING_URL + "/rating/user/" + user.getUserId(), ArrayList.class);
+        logger.info("{}", ratings);
+        user.setRatingList(ratings);
         return modelMapper.map(user , UserDto.class);
     }
 
     @Override
     public ApiResponse deleteUser(String userId) {
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User Not Found With this UserId"));
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User Not Found With this UserId"));
+        logger.info("User Id is : {}" , user.getUserId());
+        // if users deleted then its hotel and rating should be deleted
+        // with the hotel rating also deleted
+        restTemplate.delete(RATING_URL + "/rating/user/clear-rating/" + user.getUserId());
+        logger.info("Rating Deleted of User {}" ,user.getName());
         this.userRepository.delete(user);
         return ApiResponse.builder().message("User Deleted Successfully").code(HttpStatus.OK).success(true).build();
     }

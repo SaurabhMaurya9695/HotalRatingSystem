@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -50,7 +51,16 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public ApiResponse clearAllRating(String userId) {
-        return null;
+    public ApiResponse clearAllRating(String userId){
+        List<Rating> ratings = this.ratingRepository.findByUserId(userId);
+        System.out.println(ratings);
+        ratings.stream().map(item -> {
+            this.ratingRepository.findById(item.getRatingId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Rating Id Not Exist!!.."));
+            this.ratingRepository.deleteById(item.getRatingId());
+            return null;
+        }).collect(Collectors.toList());
+        return ApiResponse.builder().code(HttpStatus.OK).message("Cleared The Ratings for User")
+                .success(true).build();
     }
 }
