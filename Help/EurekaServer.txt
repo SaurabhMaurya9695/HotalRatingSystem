@@ -1,0 +1,56 @@
+Service Registry : 
+						At Service Registry .. we store all the Microservices history such as url end point . We have to register all the services there .
+And we can track all the information  of our services (mfe’s) . As well as we can all the information of the service by calling its name only or url 
+“https://Service_name/“
+
+
+Postgres path : /Library/PostgreSQL/15 in macOS
+
+1 -  create Your micro services 
+2 - then register these micro services at service registry 
+	2.1 : create a project with name EurekaServer and add the dependency of  (Eureka Server and Cloud Bootstrap)
+	2.2 : add @EnableEurekaServer annotation in main Spring boot file below @SpringBootApplication
+        2.3 : create application.yml file and add some configuration there
+   		2.3.1 : eureka:
+ 				 instance:
+   					 hostname: localhost
+				  client:
+    					register-with-eureka: false
+    					fetch-registry: false
+
+			server:
+ 				 port: 8761
+	2.4 : run the application and type localhost:8761 in google you will get to see eureka server is up and running now
+3 - to register you application on eureka add dependency of eureka-discovery-client and add some configuration :
+	3.1: 
+			<dependencyManagement>
+     					<dependencies>
+        					 <dependency>
+            						 <groupId>org.springframework.cloud</groupId>
+            						 <artifactId>spring-cloud-dependencies</artifactId>
+            						 <version>${spring-cloud.version}</version>
+             						<type>pom</type>
+            						 <scope>import</scope>
+         					</dependency>
+    				 </dependencies>
+		</dependencyManagement>
+
+	3.2 : 
+		<dependency>
+   			 <groupId>org.springframework.cloud</groupId>
+   			 <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+	3.3 : 	<spring-cloud.version>2022.0.4</spring-cloud.version>
+	3.4 : add @EnableDiscoveryClient
+	3.5 : add this in application.yml file in order to register your application 
+		eureka:
+  			instance:
+    				prefer-ip-address: true
+  			client:
+    				fetch-registry: true
+   				 register-with-eureka: true
+   			 service-url:
+      				defaultZone: http://localhost:8761/eureka
+	3.6 : run the application 
+
