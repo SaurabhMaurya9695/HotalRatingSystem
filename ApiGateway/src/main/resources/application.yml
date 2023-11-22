@@ -17,7 +17,7 @@ spring:
         - id: HOTEL-SERVICE
           uri: lb://HOTEL-SERVICE
           predicates:
-            - Path=/hotel/**
+            - Path=/hotel/** , /staff/**
 
 
 #Added in order To register with eureka
