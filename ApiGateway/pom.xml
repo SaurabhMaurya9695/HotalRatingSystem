@@ -18,18 +18,22 @@
         <spring-cloud.version>2022.0.4</spring-cloud.version>
     </properties>
     <dependencies>
+
+        <!-- This is for API GATEWAY "WEB-FLUX" +  "STARTER GATEWAY" -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter</artifactId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <artifactId>spring-cloud-starter</artifactId>
         </dependency>
+
+        <!-- InOrder To register our api gateway to the server -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
