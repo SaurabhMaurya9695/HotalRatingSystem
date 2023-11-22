@@ -1,5 +1,6 @@
 package com.rating.service.serviceImpl;
 
+import com.rating.service.entities.Hotel;
 import com.rating.service.entities.Rating;
 import com.rating.service.exception.ResourceNotFoundException;
 import com.rating.service.repository.RatingRepository;
@@ -8,6 +9,7 @@ import com.rating.service.service.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +17,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class RatingServiceImpl implements RatingService {
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Autowired
     private RatingRepository ratingRepository;
@@ -25,12 +30,20 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public List<Rating> getAllRating() {
+        // before sending we have to add the hotels of all ratings;
         return this.ratingRepository.findAll();
     }
 
     @Override
     public Rating getSingleRating(String ratingId) {
-        return this.ratingRepository.findById(ratingId).orElseThrow(() -> new RuntimeException("Hotel Id Not Found!!"));
+        // we have to add the hotel also
+        // here we have to add the hotel by hotel_Id
+
+
+        Rating rating =  this.ratingRepository.findById(ratingId).orElseThrow(() -> new RuntimeException("Hotel Id Not Found!!"));
+        Hotel hotel  = restTemplate.getForObject("http://localhost:2024/hotel/" + rating.getHotelId() , Hotel.class);
+        rating.setHotel(hotel);
+        return rating;
     }
 
     @Override
@@ -40,7 +53,16 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public List<Rating> getAllRatingOfUser(String userId) {
-        return this.ratingRepository.findByUserId(userId);
+        List<Rating> ls =  this.ratingRepository.findByUserId(userId);
+        //before sending we have to add hotels here
+        // we have here rating and rating has hotel id .. now add hotels one by one
+        List<Rating> list = ls.stream().map((ratings) -> {
+            Hotel hotel = restTemplate.getForObject("http://localhost:2024/hotel/" + ratings.getHotelId(), Hotel.class);
+            ratings.setHotel(hotel);
+            return ratings;
+        }).collect(Collectors.toList());
+
+        return list;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.user.service.userservice.dto;
 
+import com.user.service.userservice.entities.Hotel;
 import com.user.service.userservice.entities.Rating;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
