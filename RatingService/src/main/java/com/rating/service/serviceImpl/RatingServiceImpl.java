@@ -41,7 +41,7 @@ public class RatingServiceImpl implements RatingService {
 
 
         Rating rating =  this.ratingRepository.findById(ratingId).orElseThrow(() -> new RuntimeException("Hotel Id Not Found!!"));
-        Hotel hotel  = restTemplate.getForObject("http://localhost:2024/hotel/" + rating.getHotelId() , Hotel.class);
+        Hotel hotel  = restTemplate.getForObject("http://HOTEL-SERVICE/hotel/" + rating.getHotelId() , Hotel.class);
         rating.setHotel(hotel);
         return rating;
     }
@@ -57,7 +57,7 @@ public class RatingServiceImpl implements RatingService {
         //before sending we have to add hotels here
         // we have here rating and rating has hotel id .. now add hotels one by one
         List<Rating> list = ls.stream().map((ratings) -> {
-            Hotel hotel = restTemplate.getForObject("http://localhost:2024/hotel/" + ratings.getHotelId(), Hotel.class);
+            Hotel hotel = restTemplate.getForObject("http://HOTEL-SERVICE/hotel/" + ratings.getHotelId(), Hotel.class);
             ratings.setHotel(hotel);
             return ratings;
         }).collect(Collectors.toList());
