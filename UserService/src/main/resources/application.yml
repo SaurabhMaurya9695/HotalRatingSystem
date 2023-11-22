@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: User_Service
+    name: User-Service
   datasource:
     url: jdbc:mysql://localhost:3306/userService
     username: root
@@ -17,7 +17,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
 
 #Added in order To register with eureka
 eureka:

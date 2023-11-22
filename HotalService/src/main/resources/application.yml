@@ -2,7 +2,7 @@ server:
   port: 2024
 spring:
   application:
-    name: Hotel_Service
+    name: Hotel-Service
   datasource:
     url: jdbc:postgresql://localhost:5432/hotelService
     username: postgres
