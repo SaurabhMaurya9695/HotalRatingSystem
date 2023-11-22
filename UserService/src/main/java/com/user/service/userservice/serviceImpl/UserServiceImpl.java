@@ -1,8 +1,10 @@
 package com.user.service.userservice.serviceImpl;
 
 import com.user.service.userservice.dto.UserDto;
+import com.user.service.userservice.entities.Rating;
 import com.user.service.userservice.entities.User;
 import com.user.service.userservice.exceptions.ResourceNotFoundException;
+import com.user.service.userservice.external.RatingService;
 import com.user.service.userservice.repository.UserRepository;
 import com.user.service.userservice.response.ApiResponse;
 import com.user.service.userservice.service.UserService;
@@ -10,12 +12,10 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private RatingService ratingService ; // this is for restCalling through feignClient
 
 
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -60,9 +63,10 @@ public class UserServiceImpl implements UserService {
         //now we have to send all users in the form of DTO
 
         List<UserDto> allUsersDto = allUsers.stream().map(item -> {
-            ArrayList ratings = restTemplate.getForObject("http://RATING-SERVICE/rating/user/" + item.getUserId(), ArrayList.class);
-            logger.info("{}", ratings);
-            item.setRatingList(ratings);
+//            ArrayList ratings = restTemplate.getForObject("http://RATING-SERVICE/rating/user/" + item.getUserId(), ArrayList.class);
+            List<Rating> ratingList = this.ratingService.getAllRatings(item.getUserId());
+            logger.info("{}", ratingList);
+            item.setRatingList(ratingList);
             return modelMapper.map(item, UserDto.class);
         }).collect(Collectors.toList());
 
@@ -77,9 +81,10 @@ public class UserServiceImpl implements UserService {
         // here we are getting user but we don't have any ratings of user
         // so we have to get ratings also ..for that we use feign client or restTemplate
         // http://localhost:2025/rating/user/{userId}
-        ArrayList ratings = restTemplate.getForObject("http://RATING-SERVICE/rating/user/" + user.getUserId(), ArrayList.class);
-        logger.info("{}", ratings);
-        user.setRatingList(ratings);
+//        ArrayList ratings = restTemplate.getForObject("http://RATING-SERVICE/rating/user/" + user.getUserId(), ArrayList.class);
+        List<Rating> ratingList = this.ratingService.getAllRatings(user.getUserId());
+        logger.info("{}", ratingList);
+        user.setRatingList(ratingList);
         return modelMapper.map(user , UserDto.class);
     }
 
