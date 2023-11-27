@@ -63,5 +63,7 @@ resilience4j:
         sliding-window-size: 10
         sliding-window-type: count_based
 
+7 : Implement retry module 
+if any of the mfe is not responding then it will try unitl we reached to at max limit 
 
 
