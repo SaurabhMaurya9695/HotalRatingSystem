@@ -1,0 +1,6 @@
+1 : This Fucntionality allowing limited access to some service . Rate Limiter make service
+highly availabe by limiting the number of calls in one specific window .
+
+2 : we use rateLimiter to prevent from security attacks and to increase the performance 
+3 : 
+
