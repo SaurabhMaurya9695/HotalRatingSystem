@@ -1,9 +1,9 @@
 package com.user.service.userservice.controller;
 
 import com.user.service.userservice.dto.UserDto;
-import com.user.service.userservice.exceptions.GlobalExceptionHandler;
 import com.user.service.userservice.response.ApiResponse;
 import com.user.service.userservice.service.UserService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -31,9 +30,16 @@ public class UserController {
 
     //getSingleUser
     @GetMapping("/{userId}")
+    @CircuitBreaker(name = "ratingUserBreaker" , fallbackMethod = "ratingHotelFallBack")
     public ResponseEntity<UserDto> getSingleUser(@PathVariable("userId") String userId){
         UserDto singleUser = this.userService.getSingleUser(userId);
         return new ResponseEntity<>(singleUser , HttpStatus.OK);
+    }
+
+    private ResponseEntity<UserDto> ratingHotelFallBack(String userId , Exception ex){
+        logger.info("Fall Back Method Executed for ratingHotelFallBack {}" , ex.getMessage());
+        UserDto userDto = UserDto.builder().userId("1234").name("Dummy").email("dummy@gmail.com").about("This is dummy data").build();
+        return new ResponseEntity<>(userDto ,HttpStatus.OK);
     }
 
     @GetMapping("/")

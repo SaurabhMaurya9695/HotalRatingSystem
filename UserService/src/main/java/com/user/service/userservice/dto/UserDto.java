@@ -1,10 +1,7 @@
 package com.user.service.userservice.dto;
 
-import com.user.service.userservice.entities.Hotel;
 import com.user.service.userservice.entities.Rating;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class UserDto {
     private String userId;
     private String name ;

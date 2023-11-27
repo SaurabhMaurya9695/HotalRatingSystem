@@ -1,0 +1,67 @@
+1 : if at a point any of the microservices is not responding / dowm then its pointless to make the request 
+so how can you tolerate this fault called faultTolerance . to prevent this fault we used circuit
+breaker 
+
+2 : if any microservices id down for a 5 min then we have to tolerate this . so we prevent calling our
+that microservices for 5 min until we resolve fault .
+
+3 : this pattern is called circuitbreaker pattern . 
+there are three states for circuitbreaker : 
+                a : closed ,
+                b : open ,
+                c : half-open 
+4 : https://resilience4j.readme.io/docs
+5 : to work with faultTolerance you have to add actualter dependency to know the health of
+your microservices ;
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-aop</artifactId>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-spring-boot2 -->
+<dependency>
+    <groupId>io.github.resilience4j</groupId>
+    <artifactId>resilience4j-spring-boot2</artifactId>
+    <version>2.0.2</version>
+</dependency>
+
+
+6 : yml conf
+
+#actuator configuration
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:health
+  endpoint:
+    health:
+      show-details: always
+
+#resilience 4j
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingUserBreaker :
+        register-health-indicator: true
+        event-consumer-buffer-size: 10
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state:
+          seconds: 6
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based
+
+
+
